@@ -4,10 +4,16 @@ var http = require('http'),
 var proxy = httpProxy.createProxyServer({});
 var maxCharge = 5,first = 0;
 var servers = [
-  {name:"100.200.100.56",charge:0},      
+  {name:"165.22.188.157:3000",charge:0},      
 ]
-var newServer = {name:"100.200.100.25",charge:0};
+peticiones = [];
+var newServer = {name:"http://178.128.71.20:3000",charge:0};
 var server = http.createServer(function(req, res) {      
+  console.log(req.connection.remoteAddress);
+  var remoteAddress = req.connection.remoteAddress;
+  var ip = remoteAddress.split("::ffff:")[1];
+  peticiones[ip] = 1 + (peticiones[ip] || 0 );
+  console.log("peticiones",peticiones);
   var sorted = servers.sort( (s1,s2)=>{
     if(s1.charge < s2.charge){
       return -1
@@ -20,7 +26,6 @@ var server = http.createServer(function(req, res) {
     servers.push(newServer)    
   }
   console.log(sorted[first].name);
-  proxy.web(req, res, { target: 'http://'+currentServer });
-  roundRobin = !roundRobin;  
+  proxy.web(req, res, { target: 'http://'+currentServer });  
 });
 server.listen(port);
